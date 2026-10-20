@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ============================================================
+       DOCUMENT HEAD
+       Every page links the SAME techgear-styles.css and techgear-main.js using
+       relative paths, so the site also works on GitHub Pages.
+       ============================================================ -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TechGear – a showcase of modern laptops, headphones, smartwatches, and accessories.">
+  <title>TechGear | Discover Technology That Moves You</title>
+
+  <link rel="stylesheet" href="techgear-styles.css">
+
+  <!-- "defer" runs the script after the HTML is parsed, so it can
+       safely find the elements on this page. -->
+  <script src="techgear-main.js" defer></script>
+</head>
+
+<!-- data-theme holds the current theme: "dark" (default) or "light" -->
+<body data-theme="dark">
+
+  <!-- Apply a saved light theme immediately, before the page is drawn,
+       so returning visitors don't see a flash of the dark theme.
+       techgear-main.js handles the button and saving the choice. -->
+  <script>
+    try {
+      if (localStorage.getItem('techgear-theme') === 'light') {
+        document.body.setAttribute('data-theme', 'light');
+      }
+    } catch (error) { /* storage blocked – keep the default dark theme */ }
+  </script>
+
+  <!-- Skip link: lets keyboard and screen reader users jump past the navigation -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ============================================================
+       SITE HEADER (identical on every page, except which nav link
+       is marked as the current page)
+       ============================================================ -->
+  <header class="site-header" id="site-header">
+    <div class="brand">
+      <a href="techgear-home.html" class="brand-logo" aria-label="TechGear home">TechGear</a>
+      <p class="brand-tagline">Premium electronics for work, play, and everything in between.</p>
+    </div>
+
+    <nav class="main-nav" id="main-nav" aria-label="Main navigation">
+      <!-- Mobile menu button (hidden for now; reserved for a future mobile menu) -->
+      <button type="button"
+              class="nav-toggle"
+              id="nav-toggle"
+              aria-label="Open navigation menu"
+              aria-expanded="false"
+              aria-controls="nav-links">
+        Menu
+      </button>
+
+      <ul class="nav-links" id="nav-links">
+        <!-- CURRENT PAGE: class="active" + aria-current="page" -->
+        <li><a href="techgear-home.html" class="nav-link active" aria-current="page">Home</a></li>
+        <li><a href="techgear-products.html" class="nav-link">Products</a></li>
+        <li><a href="techgear-about.html" class="nav-link">About</a></li>
+        <li><a href="techgear-contact.html" class="nav-link">Contact</a></li>
+      </ul>
+    </nav>
+
+    <!-- Dark/light theme toggle (text and aria attributes set by techgear-main.js) -->
+    <button type="button"
+            class="theme-toggle"
+            id="theme-toggle"
+            aria-label="Switch between dark and light theme"
+            aria-pressed="false">
+      Toggle theme
+    </button>
+  </header>
+
+  <!-- ============================================================
+       MAIN CONTENT – HOME PAGE
+       ============================================================ -->
+  <main id="main-content">
+
+    <!-- ----------------------------------------------------------
+         HERO SECTION
+         ---------------------------------------------------------- -->
+    <section class="hero" id="hero" aria-labelledby="hero-heading">
+      <div class="hero-content">
+        <h1 id="hero-heading" class="hero-title">Discover Technology That Moves You</h1>
+
+        <!-- ROTATING PHRASE: techgear-main.js cycles through the phrases in
+             data-phrases (separated by "|") every 3 seconds.
+             Screen readers read the full list once from the hidden
+             span, instead of hearing the text change every 3 seconds. -->
+        <div class="rotating-line">
+          <p class="rotating-text"
+             data-phrases="Innovative Technology|Premium Electronics|Designed for Everyday Life|Explore What's Next">
+            <span class="visually-hidden">Innovative Technology. Premium Electronics. Designed for Everyday Life. Explore What's Next.</span>
+            <span class="rotating-phrase" aria-hidden="true">Innovative Technology</span>
+          </p>
+          <!-- Pause/Play button – shown by techgear-main.js only while rotating -->
+          <button type="button" class="rotation-toggle" aria-label="Pause rotating phrases" hidden>Pause</button>
+        </div>
+        <p class="hero-description">
+          From powerful laptops to immersive headphones and smart wearables,
+          TechGear brings you hand-picked electronics designed to fit the way you live.
+        </p>
+        <a href="techgear-products.html" class="btn btn-primary hero-cta" aria-label="Explore all TechGear products">
+          Explore Products
+        </a>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------
+         FEATURED PRODUCTS PREVIEW
+         renderFeaturedPreview() in techgear-main.js fills this grid with
+         one product from each category, taken from the shared
+         "products" array (the same data the Products page uses).
+         ---------------------------------------------------------- -->
+    <section class="featured-products" id="featured-products" aria-labelledby="featured-heading">
+      <h2 id="featured-heading" class="section-title">Featured Products</h2>
+      <p class="section-intro">
+        A pick from each category. Prices shown are sample prices for demonstration.
+      </p>
+
+      <div class="product-grid preview-grid" id="featured-preview-grid">
+        <p class="placeholder-text">Turn on JavaScript to see our featured products.</p>
+      </div>
+
+      <div class="section-actions">
+        <a href="techgear-products.html" class="btn btn-secondary">View All Products</a>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------
+         NEWSLETTER SIGNUP SECTION
+         techgear-main.js checks the email address. Sign-up is not
+         connected to a service yet, and the message says so.
+         ---------------------------------------------------------- -->
+    <section class="newsletter" id="newsletter" aria-labelledby="newsletter-heading">
+      <h2 id="newsletter-heading" class="section-title">Stay in the Loop</h2>
+      <p>Get the latest product launches, deals, and tech tips delivered to your inbox.</p>
+
+      <form class="newsletter-form" id="newsletter-form" novalidate>
+        <label for="newsletter-email" class="visually-hidden">Email address</label>
+        <input type="email"
+               id="newsletter-email"
+               name="email"
+               placeholder="you@example.com"
+               autocomplete="email"
+               required
+               aria-describedby="newsletter-message">
+        <button type="submit" class="btn btn-primary" aria-label="Subscribe to the TechGear newsletter">
+          Subscribe
+        </button>
+      </form>
+
+      <!-- Success or error messages appear here -->
+      <p class="form-message" id="newsletter-message" role="status" aria-live="polite"></p>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       SITE FOOTER (identical on every page)
+       ============================================================ -->
+  <footer class="site-footer" id="site-footer">
+    <p class="copyright">
+      &copy; <span id="current-year">2026</span> TechGear. All rights reserved.
+    </p>
+
+    <!-- Social media links (replace "#" with real profile URLs) -->
+    <nav class="social-links" aria-label="Social media">
+      <ul>
+        <li><a href="#" class="social-link" aria-label="TechGear on Facebook">Facebook</a></li>
+        <li><a href="#" class="social-link" aria-label="TechGear on Instagram">Instagram</a></li>
+        <li><a href="#" class="social-link" aria-label="TechGear on X (formerly Twitter)">X</a></li>
+        <li><a href="#" class="social-link" aria-label="TechGear on YouTube">YouTube</a></li>
+      </ul>
+    </nav>
+
+    <a href="#site-header" class="back-to-top" aria-label="Back to top of page">Back to top</a>
+  </footer>
+
+</body>
+</html>

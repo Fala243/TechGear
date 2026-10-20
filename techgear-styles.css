@@ -1,0 +1,2090 @@
+/* ==============================================================
+   TechGear – Shared Stylesheet (used by all four pages)
+   --------------------------------------------------------------
+   Mobile-first: base styles target phones, and the
+   @media (min-width: 768px) blocks adjust for tablets/desktops.
+
+   Table of contents
+   1.  Fonts
+   2.  Design tokens (CSS variables) + light theme
+   3.  Reset & base elements
+   4.  Accessibility helpers (skip link, focus, visually-hidden)
+   5.  Layout helpers (shared section spacing)
+   6.  Buttons
+   7.  Site header & navigation (incl. mobile menu)
+   8.  Theme toggle
+   9.  Home hero + inner-page header (page hero)
+   10. Products: filters, search, sort & product grid
+   11. Product card (built by createProductCard() in techgear-main.js)
+   11b. Forms (Add Product + Contact share one look)
+   12. About page (values, selection steps)
+   13. Newsletter section
+   14. Footer
+   15. Responsive breakpoints (480px, 768px main, 1024px)
+   16. Motion: entrance, scroll-reveal, card & hover animations,
+       smooth theme switch
+   17. Reduced motion
+   18. Storage notice (shown when data can't be saved)
+   ============================================================== */
+
+
+/* ==============================================================
+   1. FONTS
+   Inter from Google Fonts. If it fails to load, the system font
+   stack in --font-sans takes over, so the page still looks clean.
+   ============================================================== */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+
+/* ==============================================================
+   2. DESIGN TOKENS
+   All colors, spacing, and sizes live here. Change a value once
+   and it updates everywhere. The dark theme is the default.
+   ============================================================== */
+:root {
+  /* Colors – dark navy / near-black theme */
+  --color-bg:            #070b14;  /* page background (near-black) */
+  --color-bg-alt:        #0b1222;  /* alternating section background (navy) */
+  --color-surface:       #111a2e;  /* cards, inputs */
+  --color-surface-hover: #16213a;
+  --color-border:        #1f2a44;
+  --color-text:          #f5f7fb;  /* main text (white) */
+  --color-text-muted:    #a3aec4;  /* secondary text – 8:1 contrast on bg */
+  --color-accent:        #3b82f6;  /* electric blue – decorative use */
+  --color-accent-strong: #2563eb;  /* button background – 5.2:1 with white text */
+  --color-accent-hover:  #1d4ed8;
+  --color-accent-text:   #60a5fa;  /* blue text on dark backgrounds */
+  --color-on-accent:     #ffffff;  /* text on blue buttons */
+  --color-focus:         #7dd3fc;  /* keyboard focus ring */
+  --color-success:       #4ade80;
+  --color-error:         #f87171;
+  --header-bg:           rgba(7, 11, 20, 0.85);
+
+  /* Typography */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fs-sm:   0.875rem;
+  --fs-base: 1rem;
+  --fs-lg:   1.125rem;
+  --fs-xl:   1.375rem;
+  --fs-2xl:  1.75rem;
+  --fs-hero: clamp(2.25rem, 7vw, 4.25rem); /* scales with screen width */
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+
+  /* Shape & depth */
+  --radius-sm:   8px;
+  --radius-md:   14px;
+  --radius-lg:   20px;
+  --radius-pill: 999px;
+  --shadow-sm:   0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-md:   0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 8px 28px rgba(37, 99, 235, 0.35);
+
+  /* Layout & motion */
+  --container-width: 1200px;
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+
+  color-scheme: dark;
+}
+
+/* Light theme – activated by techgear-main.js setting
+   <body data-theme="light">. Only the colors change. */
+[data-theme="light"] {
+  --color-bg:            #f5f7fb;
+  --color-bg-alt:        #ffffff;
+  --color-surface:       #ffffff;
+  --color-surface-hover: #eef2f9;
+  --color-border:        #d8deea;
+  --color-text:          #0f172a;
+  --color-text-muted:    #475569;
+  --color-accent-text:   #1d4ed8;
+  --color-focus:         #1d4ed8;
+  --color-success:       #15803d;
+  --color-error:         #b91c1c;
+  --header-bg:           rgba(245, 247, 251, 0.9);
+  --shadow-sm:           0 2px 8px rgba(15, 23, 42, 0.08);
+  --shadow-md:           0 10px 30px rgba(15, 23, 42, 0.12);
+  --shadow-glow:         0 8px 24px rgba(37, 99, 235, 0.25); /* softer glow on white */
+
+  color-scheme: light;
+}
+
+/* data-theme lives on <body>, but the page scrollbar belongs to
+   <html> – this makes the scrollbar light too in light mode. */
+:root:has(body[data-theme="light"]) {
+  color-scheme: light;
+}
+
+/* THEME SWITCH: section backgrounds fade along with <body> when the
+   theme changes. (Turned off by the reduced-motion rules below.) */
+.site-header,
+.page-hero,
+.featured-products,
+.add-product,
+.content-section,
+.newsletter,
+.site-footer,
+.placeholder-text {
+  transition-property: background-color, border-color, color, box-shadow, transform;
+  transition-duration: 250ms;
+  transition-timing-function: ease;
+}
+
+
+/* ==============================================================
+   3. RESET & BASE ELEMENTS
+   ============================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  /* RESPONSIVE: long words/URLs wrap instead of pushing the page
+     wider than a phone screen (prevents horizontal scrolling). */
+  overflow-wrap: break-word;
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+img,
+picture,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+h1, h2, h3, h4 {
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+p {
+  max-width: 65ch; /* keeps paragraphs comfortable to read */
+}
+
+a {
+  color: var(--color-accent-text);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color var(--transition-fast);
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+
+/* ==============================================================
+   4. ACCESSIBILITY HELPERS
+   ============================================================== */
+
+/* Clear focus ring for keyboard users only (not on mouse click) */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* Hidden visually, still read by screen readers */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip link: off-screen until a keyboard user tabs to it */
+.skip-link {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 1000;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-accent-strong);
+  color: var(--color-on-accent);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--transition-fast);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+
+/* ==============================================================
+   5. LAYOUT HELPERS
+   Shared spacing for the main page sections on every page.
+   Content is centered and limited to --container-width on
+   large screens.
+   ============================================================== */
+.hero,
+.page-hero,
+.featured-products,
+.add-product,
+.content-section,
+.newsletter {
+  /* RESPONSIVE: tighter vertical spacing on phones (3rem);
+     increased to 4.5rem at 768px+. Side padding is 1rem on phones
+     and grows so content never exceeds --container-width. */
+  padding-block: var(--space-7);
+  padding-inline: max(var(--space-4), calc((100% - var(--container-width)) / 2));
+}
+
+/* Alternate (navy) background for every other section */
+.content-section.section-alt {
+  background-color: var(--color-bg-alt);
+  border-block: 1px solid var(--color-border);
+}
+
+.section-title {
+  font-size: var(--fs-2xl);
+  margin-bottom: var(--space-3);
+}
+
+.section-intro {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-6);
+}
+
+/* Row of buttons/links under a section (e.g. "View All Products") */
+.section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+
+/* ==============================================================
+   6. BUTTONS
+   .btn is the base; .btn-primary (blue) and .btn-secondary
+   (outlined) are the variants used in the HTML.
+   ============================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px; /* comfortable touch target */
+  padding: var(--space-3) var(--space-5);
+  font-weight: 600;
+  font-size: var(--fs-base);
+  line-height: 1.2;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-base),
+    transform var(--transition-fast);
+}
+
+.btn-primary {
+  background-color: var(--color-accent-strong);
+  color: var(--color-on-accent);
+  box-shadow: var(--shadow-glow);
+}
+
+/* The small "lift" on hover is in section 16, for mouse users only */
+.btn-primary:hover {
+  background-color: var(--color-accent-hover);
+  box-shadow: 0 12px 34px rgba(37, 99, 235, 0.5);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent-text);
+  background-color: var(--color-surface);
+}
+
+/* PRESSED STATE: buttons shrink very slightly while pressed, so
+   every tap or click feels responsive (works on touch screens too). */
+.btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+
+/* ==============================================================
+   7. SITE HEADER & NAVIGATION
+   The same header is used on every page.
+   Mobile layout (CSS Grid):
+     [ brand        ][ theme ]
+     [ nav (full width)      ]
+   RESPONSIVE: on phones the header scrolls away with the page so
+   it doesn't cover a large part of a small screen. From 768px up
+   it becomes sticky (see section 15).
+   ============================================================== */
+.site-header {
+  position: relative;
+  top: 0;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "brand theme"
+    "nav   nav";
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--header-bg);
+  border-bottom: 1px solid var(--color-border);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.brand {
+  grid-area: brand;
+  min-width: 0;
+}
+
+.brand-logo {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.brand-logo:hover {
+  color: var(--color-accent-text);
+}
+
+.brand-tagline {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.main-nav {
+  grid-area: nav;
+}
+
+/* RESPONSIVE: on small phones the links form a 2 x 2 grid of
+   equal, easy-to-tap buttons (always usable, even without
+   JavaScript). At 480px+ they fit in one row of 4,
+   and at 768px+ they become a normal horizontal nav. */
+.nav-links {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-1) var(--space-2);
+}
+
+.nav-link {
+  /* Flex centers the text inside a 44px-tall touch target */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border-radius: var(--radius-pill);
+  position: relative; /* anchor for the animated underline below */
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+/* ANIMATED UNDERLINE: a thin electric-blue bar under each link.
+   It starts squashed to zero width (scaleX(0)) and grows out from
+   the center on hover or keyboard focus. Animating "transform" is
+   cheap for the browser and never moves the text (no layout shift). */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: 6px;
+  height: 2px;
+  border-radius: 2px;
+  background-color: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--transition-base);
+}
+
+.nav-link:hover {
+  color: var(--color-text);
+  background-color: var(--color-surface);
+}
+
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* ACTIVE PAGE: each page marks its own link with class="active"
+   and aria-current="page" – shown with a brighter color, a
+   background, and an underline that is ALWAYS fully visible. */
+.nav-link.active,
+.nav-link[aria-current="page"] {
+  color: var(--color-text);
+  background-color: var(--color-surface);
+}
+
+.nav-link.active::after,
+.nav-link[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+/* ---- Mobile menu button ----
+   Hidden for now. When a mobile menu is built, techgear-main.js should
+   add class="js" to <html>; then the button appears and the links
+   collapse into a dropdown that opens with .is-open. */
+.nav-toggle {
+  display: none;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  font-weight: 600;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.nav-toggle:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-accent);
+}
+
+.js .nav-toggle {
+  display: inline-flex;
+  align-items: center;
+}
+
+.js .nav-links {
+  display: none;
+  flex-direction: column;
+  margin-top: var(--space-3);
+  padding: var(--space-2);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.js .nav-links.is-open {
+  display: flex;
+}
+
+.js .nav-link {
+  justify-content: flex-start; /* left-aligned dropdown items */
+  border-radius: var(--radius-sm);
+}
+
+
+/* ==============================================================
+   8. THEME TOGGLE
+   ============================================================== */
+.theme-toggle {
+  grid-area: theme;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.theme-toggle:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+/* Pressed: a quick, subtle "push" */
+.theme-toggle:active {
+  transform: scale(0.96);
+}
+
+.theme-toggle[aria-pressed="true"] {
+  border-color: var(--color-accent);
+}
+
+
+/* ==============================================================
+   9. HOME HERO + INNER-PAGE HEADER
+   ============================================================== */
+
+/* ---- Home page hero: large headline over a soft blue glow ---- */
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 70vh;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(59, 130, 246, 0.25), transparent 70%),
+    radial-gradient(ellipse 50% 60% at 10% 90%, rgba(14, 165, 233, 0.15), transparent 70%),
+    var(--color-bg);
+}
+
+.hero-content {
+  max-width: 760px;
+}
+
+.hero-title {
+  /* RESPONSIVE: --fs-hero uses clamp() – about 2.25rem on phones,
+     growing smoothly with screen width up to 4.25rem on desktop. */
+  font-size: var(--fs-hero);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  margin-bottom: var(--space-5);
+}
+
+.hero-description {
+  font-size: var(--fs-lg);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-6);
+}
+
+/* Bigger, more prominent call-to-action.
+   RESPONSIVE: full width on phones (a large, easy thumb target);
+   returns to its natural width at 480px+. */
+.hero-cta {
+  width: 100%;
+  min-height: 52px;
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--fs-lg);
+}
+
+/* ---- Inner-page header (Products, About, Contact) ----
+   A shorter version of the hero with the same blue glow, so every
+   page feels part of the same site. */
+.page-hero {
+  background:
+    radial-gradient(ellipse 60% 90% at 85% 0%, rgba(59, 130, 246, 0.22), transparent 70%),
+    var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.page-title {
+  /* RESPONSIVE: about 2rem on phones, up to 3.25rem on desktop */
+  font-size: clamp(2rem, 6vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space-4);
+}
+
+.page-intro {
+  font-size: var(--fs-lg);
+  color: var(--color-text-muted);
+}
+
+/* ---- Rotating phrase (all four pages) ----
+   Sits between the heading and the paragraph. techgear-main.js swaps the
+   phrase every 3 seconds; CSS fades it out and back in.
+
+   NO LAYOUT SHIFT: the line has a fixed height and the phrase never
+   wraps, so the paragraph below never moves when the text changes.
+   (A phrase too long for a very narrow screen ends with "…" instead
+   of wrapping onto a second line.) */
+.rotating-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 44px; /* fixed: matches the Pause button's touch-target height */
+  margin-bottom: var(--space-4);
+}
+
+.rotating-text {
+  min-width: 0; /* allows the "…" truncation inside the flex row */
+  max-width: none;
+  overflow: hidden;
+  /* RESPONSIVE: 1rem on small phones, up to 1.375rem on desktop */
+  font-size: clamp(1rem, 3.6vw, 1.375rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+  color: var(--color-accent-text); /* electric blue in both themes */
+}
+
+/* The visible phrase. Fading uses only opacity + transform, which
+   the browser animates smoothly. */
+.rotating-phrase {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis; /* "…" if a phrase is wider than the screen */
+  transition: opacity 400ms ease, transform 400ms ease;
+}
+
+/* techgear-main.js adds .is-hidden to fade the old phrase out (moving it
+   down slightly), changes the text, then removes it to fade in. */
+.rotating-phrase.is-hidden {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+/* Small Pause / Play button for the rotating phrase */
+.rotation-toggle {
+  flex-shrink: 0;
+  min-height: 44px; /* touch-friendly */
+  padding: 0 var(--space-3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.rotation-toggle:hover {
+  color: var(--color-text);
+  background-color: var(--color-surface);
+}
+
+.rotation-toggle[hidden] {
+  display: none;
+}
+
+
+/* ==============================================================
+   10. PRODUCTS: FILTERS, SEARCH, SORT & PRODUCT GRID
+   ============================================================== */
+.featured-products {
+  background-color: var(--color-bg-alt);
+  border-block: 1px solid var(--color-border);
+}
+
+/* ---- Product toolbar: search box + sort dropdown ----
+   RESPONSIVE: stacked on phones; one row from 768px
+   (search grows to fill the space, sort sits on the right). */
+.product-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.toolbar-search {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Magnifying glass sits inside the left edge of the search box */
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: var(--space-4);
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none; /* clicks go through to the input */
+}
+
+.toolbar-sort {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.toolbar-sort label {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* Shared pill look for the search box and the dropdown */
+.toolbar-search input,
+.toolbar-sort select {
+  width: 100%;
+  min-height: 48px; /* touch-friendly */
+  padding: var(--space-3) var(--space-5);
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.toolbar-search input {
+  padding-left: 2.75rem; /* room for the icon */
+}
+
+.toolbar-sort select {
+  flex: 1;
+  cursor: pointer;
+}
+
+.toolbar-search input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+.toolbar-search input:hover,
+.toolbar-sort select:hover {
+  border-color: var(--color-accent);
+}
+
+.toolbar-search input:focus-visible,
+.toolbar-sort select:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-focus);
+}
+
+@media (min-width: 768px) {
+  .product-toolbar {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .toolbar-sort select {
+    flex: none;
+    width: auto;
+    min-width: 13rem;
+  }
+}
+
+/* ---- Filter buttons (pill style) ---- */
+.product-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.filter-btn {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-base),
+    transform var(--transition-fast);
+}
+
+.filter-btn:hover {
+  color: var(--color-text);
+  border-color: var(--color-accent);
+}
+
+/* Pressed: a quick, subtle "push" */
+.filter-btn:active {
+  transform: scale(0.96);
+}
+
+/* Selected filter – the soft blue glow fades in with the color */
+.filter-btn.active,
+.filter-btn[aria-pressed="true"] {
+  color: var(--color-on-accent);
+  background-color: var(--color-accent-strong);
+  border-color: var(--color-accent-strong);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+}
+
+/* ---- Results count, e.g. "Showing 3 of 8 products." ---- */
+.results-count {
+  margin-bottom: var(--space-6);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+/* ---- "No matching products found" box ---- */
+.no-results {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-7) var(--space-4);
+  text-align: center;
+  background-color: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* display: grid above would beat the hidden attribute, so restore it */
+.no-results[hidden] {
+  display: none;
+}
+
+.no-results-title {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+}
+
+.no-results-text {
+  color: var(--color-text-muted);
+}
+
+/* ---- Category blocks ---- */
+.product-categories {
+  display: grid;
+  gap: var(--space-7);
+}
+
+.category-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--fs-xl);
+  margin-bottom: var(--space-5);
+}
+
+/* Small blue bar before each category name */
+.category-title::before {
+  content: "";
+  width: 4px;
+  height: 1.1em;
+  border-radius: 2px;
+  background-color: var(--color-accent);
+}
+
+/* Hidden category (set by techgear-main.js when filtering) */
+.product-category.is-hidden,
+.product-category[hidden] {
+  display: none;
+}
+
+/* ---- Responsive product grid (Home preview + Products page) ----
+   RESPONSIVE: mobile-first column count
+     phones (< 480px)   → 1 column, cards use the full width
+     480px – 767px      → 2 columns (see section 15)
+     768px and up       → as many 240px+ columns as fit (2–4) */
+.product-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  /* Each card keeps its own height, so opening one card's specs
+     doesn't stretch the closed cards next to it. */
+  align-items: start;
+}
+
+/* Message shown in an empty category, or when JavaScript is off */
+.placeholder-text {
+  grid-column: 1 / -1;
+  max-width: none;
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--color-text-muted);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+
+/* ==============================================================
+   11. PRODUCT CARD
+   Built by createProductCard() in techgear-main.js – the same card is
+   used on the Home preview and the Products page.
+   ============================================================== */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition:
+    background-color var(--transition-base), /* fades on theme switch */
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    border-color var(--transition-base);
+}
+
+/* Keyboard users: the card lifts when anything inside it has focus.
+   (The mouse-hover version is in section 16, only for devices that
+   can really hover, so phones don't get "stuck" hover effects.) */
+.product-card:focus-within {
+  transform: translateY(-4px);
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-md), 0 0 0 1px rgba(59, 130, 246, 0.25);
+}
+
+/* ---- Product image frame ----
+   - aspect-ratio: every image gets the same 4:3 frame, and the space
+     is reserved before the image loads (no layout shift).
+   - overflow: hidden keeps the hover zoom (section 16) inside the
+     rounded corners.
+   - The dark navy "studio" backdrop with a soft blue glow is the
+     same in BOTH themes, because the product photos are shot on
+     navy. Any space around a product (see object-fit below) blends
+     in, and it's what shows while an image is still loading. */
+.product-media {
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 40%, rgba(59, 130, 246, 0.18), transparent 70%),
+    #0b1222;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  /* contain = show the WHOLE product, never cropped or stretched */
+  object-fit: contain;
+  /* Starts invisible; fades in when techgear-main.js adds .is-loaded */
+  opacity: 0;
+  transition: opacity 400ms ease, transform 400ms ease;
+}
+
+.product-image.is-loaded {
+  opacity: 1;
+}
+
+/* If even the placeholder can't load, techgear-main.js hides the image and
+   the empty navy frame shows instead. (Needed because the global
+   "img { display: block }" rule would otherwise beat "hidden".) */
+.product-image[hidden] {
+  display: none;
+}
+
+.product-name {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+}
+
+.product-description {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  flex-grow: 1; /* keeps prices/buttons aligned across cards */
+}
+
+.product-price {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--color-accent-text);
+}
+
+.product-card .btn {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+/* Top row of a card: category badge left, favorite heart right */
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+/* ---- Favorite (heart) button ----
+   A round 44px button (touch-friendly). Outlined heart ♡ when off;
+   filled electric-blue heart ♥ with a soft blue background when on.
+   techgear-main.js sets aria-pressed and the .is-favorite class. */
+.favorite-btn {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  margin: calc(var(--space-1) * -1) calc(var(--space-1) * -1) 0 0; /* tuck into the corner */
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.favorite-btn.is-favorite,
+.favorite-btn[aria-pressed="true"] {
+  color: var(--color-accent-text);
+  background-color: rgba(59, 130, 246, 0.14);
+  border-color: var(--color-accent);
+}
+
+/* Pressed: a quick squeeze (works on touch screens too) */
+.favorite-btn:active {
+  transform: scale(0.9);
+}
+
+.favorite-icon {
+  display: inline-block; /* needed so the "pop" can scale it */
+}
+
+/* "Pop" when a product becomes a favorite: the heart grows a little
+   and settles back (transform only, so it's smooth). */
+@keyframes heart-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+.favorite-btn.pop .favorite-icon {
+  animation: heart-pop 320ms ease;
+}
+
+/* "Favorites Only" toggle on the Products page (uses .filter-btn look) */
+.favorites-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: flex-start;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.favorites-filter-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.favorites-count {
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+@media (min-width: 768px) {
+  .favorites-filter {
+    align-self: auto;
+  }
+}
+
+/* Small electric-blue category badge at the top of each card */
+.product-category-label {
+  align-self: flex-start;
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent-text);
+  background-color: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: var(--radius-pill);
+}
+
+/* ---- Show / Hide Specifications ---- */
+
+/* Button while the specs are open (class added by techgear-main.js) */
+.specs-toggle.is-active {
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* EXPAND / COLLAPSE ANIMATION
+   The spec list sits inside a "panel": a one-row grid whose row
+   height animates between 0fr (collapsed, zero height) and 1fr
+   (the list's natural height). This gives a smooth height animation
+   without guessing a fixed pixel height.
+   techgear-main.js adds .is-open to expand, and adds the "hidden" attribute
+   once collapsing has finished – so closed specs are also hidden
+   from screen readers and keyboard users. */
+.specs-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 300ms ease, opacity 250ms ease;
+}
+
+.specs-panel.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+/* Make sure the hidden attribute always wins over display: grid */
+.specs-panel[hidden] {
+  display: none;
+}
+
+/* Clips the list while the panel is shorter than it */
+.specs-panel-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Spec list: a neat two-column table of label / value rows */
+.product-specs {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-sm);
+  background-color: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-md);
+}
+
+.spec-row {
+  display: flex;
+  flex-wrap: wrap; /* long values drop below the label on narrow cards */
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+}
+
+.spec-row + .spec-row {
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+
+.product-specs dt {
+  color: var(--color-text-muted);
+}
+
+.product-specs dd {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text);
+  text-align: right;
+}
+
+/* "Sample price" note next to each price */
+.price-note {
+  display: inline-block;
+  white-space: nowrap; /* "Sample price" never splits across two lines */
+  margin-left: var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Delete button: quiet outline that turns red on hover */
+.btn-delete {
+  min-height: 44px;
+  padding-block: var(--space-2);
+  font-size: var(--fs-sm);
+  color: var(--color-error);
+  background-color: transparent;
+  border-color: var(--color-border);
+}
+
+.btn-delete:hover {
+  border-color: var(--color-error);
+  background-color: rgba(248, 113, 113, 0.1);
+}
+
+
+/* ==============================================================
+   11b. FORMS
+   .form-card is shared by the Add Product form (Products page)
+   and the Contact form (Contact page).
+   RESPONSIVE: fields stack in one column on phones; from 768px
+   they sit in two columns (see the media query at the end of
+   this section).
+   ============================================================== */
+.add-product {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.form-card {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 820px;
+  padding: var(--space-5) var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0; /* lets fields shrink inside grid columns */
+}
+
+.form-field label,
+.form-fieldset legend {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.required-mark {
+  color: var(--color-accent-text);
+}
+
+/* Text boxes, dropdowns, and text areas share one look */
+.form-card input,
+.form-card select,
+.form-card textarea {
+  width: 100%;
+  min-height: 48px; /* touch-friendly */
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text);
+  background-color: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-card textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.form-card input::placeholder,
+.form-card textarea::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+.form-card input:hover,
+.form-card select:hover,
+.form-card textarea:hover {
+  border-color: var(--color-accent);
+}
+
+.form-card input:focus-visible,
+.form-card select:focus-visible,
+.form-card textarea:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-focus);
+}
+
+/* Invalid fields (aria-invalid is set by techgear-main.js) */
+.form-card [aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+.field-error {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--color-error);
+}
+
+/* No empty gap when there is no error */
+.field-error:empty {
+  display: none;
+}
+
+/* Grouped fields (the Add Product specifications) */
+.form-fieldset {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0; /* stops fieldsets from overflowing on phones */
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.form-fieldset legend {
+  padding-inline: var(--space-2);
+}
+
+.form-hint {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+/* Highlighted note, e.g. "this demo form doesn't send messages" */
+.form-notice {
+  max-width: none;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  background-color: rgba(59, 130, 246, 0.08);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+}
+
+.spec-input-row {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.spec-input-row + .spec-input-row {
+  padding-top: var(--space-4);
+  border-top: 1px dashed var(--color-border);
+}
+
+/* Full-width submit button on phones */
+.form-submit {
+  width: 100%;
+}
+
+.form-card .form-message {
+  margin-top: 0;
+}
+
+@media (min-width: 768px) {
+  .form-card {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-5);
+    padding: var(--space-6);
+  }
+
+  /* These span both columns */
+  .form-field-full,
+  .form-fieldset,
+  .form-notice,
+  .form-card .form-message {
+    grid-column: 1 / -1;
+  }
+
+  /* Spec name and value side by side */
+  .spec-input-row {
+    grid-template-columns: 1fr 2fr;
+  }
+
+  .spec-input-row .field-error {
+    grid-column: 1 / -1;
+  }
+
+  .form-submit {
+    width: auto;
+    justify-self: start;
+  }
+}
+
+
+/* ==============================================================
+   12. ABOUT PAGE
+   ============================================================== */
+
+/* Larger, easy-to-read body text for the mission statement */
+.lead-text {
+  font-size: var(--fs-lg);
+  color: var(--color-text-muted);
+}
+
+.lead-text + .lead-text {
+  margin-top: var(--space-4);
+}
+
+/* ---- Company values: a grid of small cards ----
+   RESPONSIVE: 1 column on phones, 2 from 480px, 4 from 1024px */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+.info-card {
+  padding: var(--space-5);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base), box-shadow var(--transition-base), background-color var(--transition-base);
+}
+
+/* (The info-card hover lift is in section 16, for mouse users only.) */
+
+.info-card h3 {
+  font-size: var(--fs-lg);
+  margin-bottom: var(--space-2);
+}
+
+.info-card p {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+/* ---- "How we choose products": numbered steps ----
+   A CSS counter draws the blue number bubble for each step. */
+.steps {
+  counter-reset: step;
+  display: grid;
+  gap: var(--space-4);
+  max-width: 760px;
+  padding: 0;
+  list-style: none;
+}
+
+.steps li {
+  counter-increment: step;
+  position: relative;
+  padding: var(--space-4) var(--space-5) var(--space-4) 4rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--color-on-accent);
+  background-color: var(--color-accent-strong);
+  border-radius: 50%;
+}
+
+.steps h3 {
+  font-size: var(--fs-lg);
+  margin-bottom: var(--space-1);
+}
+
+.steps p {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+/* Small honest note, e.g. "products shown are fictional samples" */
+.demo-note {
+  margin-top: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  border-left: 3px solid var(--color-accent);
+  background-color: rgba(59, 130, 246, 0.08);
+  border-radius: var(--radius-sm);
+}
+
+
+/* ==============================================================
+   13. NEWSLETTER SECTION (Home page)
+   A highlighted panel with a stacked form on phones.
+   ============================================================== */
+.newsletter {
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.18), transparent 60%),
+    var(--color-bg-alt);
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.newsletter p {
+  margin-inline: auto;
+  color: var(--color-text-muted);
+}
+
+.newsletter-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 520px;
+  margin: var(--space-6) auto 0;
+}
+
+.newsletter-form input {
+  min-height: 48px;
+  width: 100%;
+  padding: var(--space-3) var(--space-5);
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.newsletter-form input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+.newsletter-form input:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-focus);
+}
+
+.newsletter-form input[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+/* Status message under a form (filled in by techgear-main.js) */
+.form-message {
+  min-height: 1.6em; /* reserves space so layout doesn't jump */
+  margin-top: var(--space-3);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+}
+
+.form-message.success { color: var(--color-success); }
+.form-message.error   { color: var(--color-error); }
+
+
+/* ==============================================================
+   14. FOOTER (same on every page)
+   ============================================================== */
+.site-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-7) var(--space-4);
+  text-align: center;
+  color: var(--color-text-muted);
+  background-color: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+}
+
+.copyright {
+  font-size: var(--fs-sm);
+}
+
+.social-links ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.social-link {
+  /* RESPONSIVE: 44px-tall touch target */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  transition: color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.social-link:hover {
+  color: var(--color-text);
+  border-color: var(--color-accent);
+  background-color: var(--color-surface);
+}
+
+.back-to-top {
+  /* RESPONSIVE: padded so the small text link is easy to tap */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: var(--space-2);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+}
+
+.back-to-top:hover {
+  color: var(--color-text);
+}
+
+
+/* ==============================================================
+   15. RESPONSIVE BREAKPOINTS
+   15a. Large phones (480px and up) – small helper step
+   15b. Tablets & desktops (768px and up) – main breakpoint
+   15c. Wide desktops (1024px and up) – extra breathing room
+   ============================================================== */
+
+/* ---- 15a. Large phones / small tablets (480px+) ---- */
+@media (min-width: 480px) {
+
+  /* Nav links fit in a single row of four */
+  .nav-links {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Hero button no longer needs to be full width */
+  .hero-cta {
+    width: auto;
+  }
+
+  /* Product grid and value cards: two columns */
+  .product-grid,
+  .info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ---- 15b. Tablets & desktops (768px+) ---- */
+@media (min-width: 768px) {
+
+  /* The header is sticky here, so in-page links (skip link,
+     back to top) stop below it instead of underneath it. */
+  html {
+    scroll-padding-top: 9rem; /* tablet header is taller (tagline wraps) */
+  }
+
+  /* Header becomes one row: [ brand ][ nav ][ theme ]
+     and sticks to the top while scrolling. */
+  .site-header {
+    position: sticky;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "brand nav theme";
+    gap: var(--space-4);
+    padding: var(--space-4) max(var(--space-6), calc((100% - var(--container-width)) / 2));
+  }
+
+  /* Tablet: limit the tagline width so it wraps onto two short
+     lines instead of pushing the nav off-screen. */
+  .brand-tagline {
+    max-width: 22ch;
+  }
+
+  .main-nav {
+    justify-self: center;
+  }
+
+  /* Back to a simple horizontal row of links */
+  .nav-links {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--space-1);
+  }
+
+  /* Slightly narrower link padding so all four links fit at 768px */
+  .nav-link {
+    padding-inline: var(--space-3);
+  }
+
+  /* Product grid: as many 240px+ columns as fit –
+     2 on tablets, up to 4 on wide desktops */
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--space-5);
+  }
+
+  /* No menu button on larger screens – links are always visible */
+  .js .nav-toggle {
+    display: none;
+  }
+
+  .js .nav-links {
+    display: flex;
+    flex-direction: row;
+    margin-top: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .js .nav-link {
+    justify-content: center;
+    border-radius: var(--radius-pill);
+  }
+
+  /* More breathing room on bigger screens */
+  .hero,
+  .page-hero,
+  .featured-products,
+  .add-product,
+  .content-section,
+  .newsletter {
+    padding-block: var(--space-8);
+    padding-inline: max(var(--space-6), calc((100% - var(--container-width)) / 2));
+  }
+
+  .hero {
+    min-height: 80vh;
+  }
+
+  .section-title {
+    font-size: 2.25rem;
+  }
+
+  /* Newsletter input and button side by side */
+  .newsletter-form {
+    flex-direction: row;
+  }
+
+  .newsletter-form input {
+    flex: 1;
+  }
+
+  .newsletter-form .btn {
+    flex-shrink: 0;
+  }
+
+  /* Footer spreads across one row */
+  .site-footer {
+    flex-direction: row;
+    justify-content: space-between;
+    padding-inline: max(var(--space-6), calc((100% - var(--container-width)) / 2));
+    text-align: left;
+  }
+}
+
+/* ---- 15c. Wide desktops (1024px+) ---- */
+@media (min-width: 1024px) {
+
+  /* Enough room for the tagline on one line */
+  .brand-tagline {
+    max-width: none;
+  }
+
+  /* Shorter header here, so a smaller jump-link offset */
+  html {
+    scroll-padding-top: 6rem;
+  }
+
+  /* Roomier nav links */
+  .nav-links {
+    gap: var(--space-2);
+  }
+
+  .nav-link {
+    padding-inline: var(--space-4);
+  }
+
+  /* All four value cards – and the four Home preview products –
+     in one row */
+  .info-grid,
+  .preview-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+
+/* ==============================================================
+   16. MOTION
+   Every animation here changes only "transform" (move/scale) and
+   "opacity" (fade). Browsers can animate these two smoothly on the
+   graphics chip without re-calculating the page layout, so nothing
+   jumps around and phones stay smooth.
+   Section 17 switches all of this off for reduced-motion users.
+   ============================================================== */
+
+/* ---- 16a. Page entrance (Home hero + inner page headers) ----
+   @keyframes describes the animation: start invisible and 24px
+   lower, end fully visible in place. */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* STAGGERED TIMING: each piece starts a little after the one
+   before it (the last value is the delay).
+   "backwards" applies the starting state (invisible) during the
+   delay, and stops affecting the element once the animation has
+   finished – so the button's own hover effects still work after. */
+.hero-title {
+  animation: fade-up 700ms cubic-bezier(0.22, 1, 0.36, 1) 100ms backwards;
+}
+
+/* The rotating phrase enters between the heading and the paragraph */
+.hero .rotating-line {
+  animation: fade-up 700ms cubic-bezier(0.22, 1, 0.36, 1) 175ms backwards;
+}
+
+.hero-description {
+  animation: fade-up 700ms cubic-bezier(0.22, 1, 0.36, 1) 250ms backwards;
+}
+
+.hero-cta {
+  animation: fade-up 700ms cubic-bezier(0.22, 1, 0.36, 1) 400ms backwards;
+}
+
+/* Products, About, and Contact page headers get a shorter version */
+.page-title {
+  animation: fade-up 600ms cubic-bezier(0.22, 1, 0.36, 1) 50ms backwards;
+}
+
+.page-hero .rotating-line {
+  animation: fade-up 600ms cubic-bezier(0.22, 1, 0.36, 1) 115ms backwards;
+}
+
+.page-intro {
+  animation: fade-up 600ms cubic-bezier(0.22, 1, 0.36, 1) 180ms backwards;
+}
+
+/* ---- 16b. Scroll reveal ----
+   techgear-main.js adds .reveal to sections (and About page cards/steps)
+   that start below the screen, then adds .is-visible once each one
+   scrolls into view (using IntersectionObserver). The change between
+   the two states is a smooth transition. --reveal-delay staggers
+   items that appear together. */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 700ms ease var(--reveal-delay, 0ms),
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- 16c. Product cards appearing and disappearing ----
+   renderProducts() adds .card-enter to cards that are new on screen
+   (after adding, filtering, or sorting), with a small staggered
+   --enter-delay. .card-leave fades a card out before it's deleted. */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes card-leave {
+  to {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+.product-card.card-enter {
+  animation: card-enter 450ms cubic-bezier(0.22, 1, 0.36, 1) var(--enter-delay, 0ms) backwards;
+}
+
+.product-card.card-leave {
+  animation: card-leave 250ms ease forwards;
+  pointer-events: none; /* no double-clicks while it fades out */
+}
+
+/* ---- 16d. Hover effects – mouse and trackpad only ----
+   (hover: hover) and (pointer: fine) are true only for devices that
+   can really hover. On phones and tablets a tap would otherwise
+   leave cards "stuck" in their lifted hover state. */
+@media (hover: hover) and (pointer: fine) {
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary:hover,
+  .filter-btn:hover,
+  .theme-toggle:hover {
+    transform: translateY(-1px);
+  }
+
+  /* Product cards lift, glow, and get a blue border */
+  .product-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-md), 0 0 0 1px rgba(59, 130, 246, 0.25);
+  }
+
+  /* Gentle photo zoom. scale() enlarges evenly in both directions,
+     so the photo is never distorted; .product-media clips the edges. */
+  .product-card:hover .product-image {
+    transform: scale(1.05);
+  }
+
+  .info-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Heart button: blue outline and a slight grow on hover */
+  .favorite-btn:hover {
+    color: var(--color-accent-text);
+    border-color: var(--color-accent);
+    transform: scale(1.08);
+  }
+
+  .favorite-btn:active {
+    transform: scale(0.9);
+  }
+
+  /* Keep the "pressed" push working while hovering
+     (these come last, so they win over the hover lifts above) */
+  .btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .filter-btn:active,
+  .theme-toggle:active {
+    transform: scale(0.96);
+  }
+}
+
+/* ---- 16e. Smooth theme switch ----
+   techgear-main.js adds .theme-transition to <html> for a moment when the
+   theme button is clicked. While it's there, every element fades
+   its colors to the new theme. !important is needed to override
+   each element's own transition list – but only for that moment,
+   so normal hover effects are unaffected. */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color 350ms ease,
+    color 350ms ease,
+    border-color 350ms ease,
+    box-shadow 350ms ease,
+    fill 350ms ease,
+    stroke 350ms ease !important;
+}
+
+
+/* ==============================================================
+   17. REDUCED MOTION
+   Respect users who ask their OS for less motion: no smooth
+   scrolling, no animations or delays, no hover "lift" effects.
+   (techgear-main.js also skips the scroll reveal, the card exit fade,
+   and the theme fade for these users.)
+   ============================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  /* Content is always fully visible */
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .filter-btn:hover,
+  .theme-toggle:hover,
+  .btn:active,
+  .filter-btn:active,
+  .theme-toggle:active,
+  .product-card:hover,
+  .product-card:focus-within,
+  .product-card:hover .product-image,
+  .info-card:hover,
+  .favorite-btn:hover,
+  .favorite-btn:active {
+    transform: none;
+  }
+}
+
+
+/* ==============================================================
+   18. STORAGE NOTICE
+   Created by techgear-main.js only when data can't be loaded or saved
+   (for example, when the browser blocks storage). It floats at
+   the bottom of the screen until dismissed.
+   ============================================================== */
+.storage-notice {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  left: var(--space-4);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 560px;
+  margin-inline: auto;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-error);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  animation: fade-up 300ms ease;
+}
+
+.storage-notice[hidden] {
+  display: none;
+}
+
+.storage-notice-text {
+  flex: 1;
+  font-size: var(--fs-sm);
+}
+
+.storage-notice-close {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.storage-notice-close:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent-text);
+}

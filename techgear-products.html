@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ============================================================
+       DOCUMENT HEAD – same shared techgear-styles.css and techgear-main.js
+       ============================================================ -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Browse, search, filter, and sort the full TechGear catalog of laptops, headphones, smartwatches, and accessories.">
+  <title>Products | TechGear</title>
+
+  <link rel="stylesheet" href="techgear-styles.css">
+  <script src="techgear-main.js" defer></script>
+</head>
+
+<body data-theme="dark">
+
+  <!-- Apply a saved light theme before the page is drawn (no flash) -->
+  <script>
+    try {
+      if (localStorage.getItem('techgear-theme') === 'light') {
+        document.body.setAttribute('data-theme', 'light');
+      }
+    } catch (error) { /* storage blocked – keep the default dark theme */ }
+  </script>
+
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ============================================================
+       SITE HEADER – "Products" is the current page
+       ============================================================ -->
+  <header class="site-header" id="site-header">
+    <div class="brand">
+      <a href="techgear-home.html" class="brand-logo" aria-label="TechGear home">TechGear</a>
+      <p class="brand-tagline">Premium electronics for work, play, and everything in between.</p>
+    </div>
+
+    <nav class="main-nav" id="main-nav" aria-label="Main navigation">
+      <button type="button"
+              class="nav-toggle"
+              id="nav-toggle"
+              aria-label="Open navigation menu"
+              aria-expanded="false"
+              aria-controls="nav-links">
+        Menu
+      </button>
+
+      <ul class="nav-links" id="nav-links">
+        <li><a href="techgear-home.html" class="nav-link">Home</a></li>
+        <li><a href="techgear-products.html" class="nav-link active" aria-current="page">Products</a></li>
+        <li><a href="techgear-about.html" class="nav-link">About</a></li>
+        <li><a href="techgear-contact.html" class="nav-link">Contact</a></li>
+      </ul>
+    </nav>
+
+    <button type="button"
+            class="theme-toggle"
+            id="theme-toggle"
+            aria-label="Switch between dark and light theme"
+            aria-pressed="false">
+      Toggle theme
+    </button>
+  </header>
+
+  <!-- ============================================================
+       MAIN CONTENT – PRODUCTS PAGE
+       ============================================================ -->
+  <main id="main-content">
+
+    <!-- Page header -->
+    <section class="page-hero" aria-labelledby="page-heading">
+      <h1 id="page-heading" class="page-title">Products</h1>
+
+      <!-- ROTATING PHRASE (see the comment in techgear-home.html) -->
+      <div class="rotating-line">
+        <p class="rotating-text"
+           data-phrases="Laptops Built to Perform|Immersive Headphones|Smartwatches for Every Day|Accessories That Connect">
+          <span class="visually-hidden">Laptops Built to Perform. Immersive Headphones. Smartwatches for Every Day. Accessories That Connect.</span>
+          <span class="rotating-phrase" aria-hidden="true">Laptops Built to Perform</span>
+        </p>
+        <button type="button" class="rotation-toggle" aria-label="Pause rotating phrases" hidden>Pause</button>
+      </div>
+      <p class="page-intro">
+        Browse the full TechGear catalog. Search by name or description,
+        filter by category, sort by price, and tap &#9825; to save favorites.
+        Prices shown are sample prices for demonstration.
+      </p>
+    </section>
+
+    <!-- ----------------------------------------------------------
+         PRODUCT CATALOG
+         renderProducts() in techgear-main.js draws the cards from the
+         shared "products" array, applying the search, category,
+         and sort choices below.
+         ---------------------------------------------------------- -->
+    <section class="featured-products" id="products" aria-label="Product catalog">
+
+      <!-- Screen-reader announcements (e.g. "Product deleted") -->
+      <p class="visually-hidden" id="products-status" role="status" aria-live="polite"></p>
+
+      <!-- Toolbar: search box + sort dropdown -->
+      <div class="product-toolbar">
+        <div class="toolbar-search">
+          <label for="product-search" class="visually-hidden">Search products by name or description</label>
+          <!-- Decorative magnifying-glass icon (hidden from screen readers) -->
+          <svg class="search-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m20 20-3.5-3.5"></path>
+          </svg>
+          <input type="search" id="product-search" name="search"
+                 placeholder="Search products..." autocomplete="off">
+        </div>
+
+        <!-- "Favorites Only" toggle. aria-pressed shows whether it's on;
+             techgear-main.js updates the heart and the (count). -->
+        <button type="button" class="filter-btn favorites-filter" id="favorites-filter" aria-pressed="false">
+          <span class="favorites-filter-icon" aria-hidden="true">&#9825;</span>
+          Favorites Only
+          <span class="favorites-count">(0)</span>
+        </button>
+
+        <div class="toolbar-sort">
+          <label for="product-sort">Sort by</label>
+          <select id="product-sort" name="sort">
+            <option value="default">Default</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Category filter buttons. data-filter matches each
+           category's data-category; aria-pressed marks the selected one. -->
+      <div class="product-filters" id="product-filters" role="group" aria-label="Filter products by category">
+        <button type="button" class="filter-btn active" data-filter="all" aria-label="Show all products" aria-pressed="true">All</button>
+        <button type="button" class="filter-btn" data-filter="laptops" aria-label="Show laptops only" aria-pressed="false">Laptops</button>
+        <button type="button" class="filter-btn" data-filter="headphones" aria-label="Show headphones only" aria-pressed="false">Headphones</button>
+        <button type="button" class="filter-btn" data-filter="smartwatches" aria-label="Show smartwatches only" aria-pressed="false">Smartwatches</button>
+        <button type="button" class="filter-btn" data-filter="accessories" aria-label="Show accessories only" aria-pressed="false">Accessories</button>
+      </div>
+
+      <!-- "Showing X of Y products." (updated by techgear-main.js) -->
+      <p class="results-count" id="results-count" role="status" aria-live="polite"></p>
+
+      <!-- Shown only when nothing matches the search/filter -->
+      <div class="no-results" id="no-results" hidden>
+        <p class="no-results-title">No matching products found</p>
+        <p class="no-results-text">Try a different search term or category.</p>
+        <button type="button" class="btn btn-primary" id="clear-filters">Clear Filters</button>
+      </div>
+
+      <!-- One block per category. techgear-main.js finds each grid by its
+           id ("laptops-grid", ...) and fills it with cards. -->
+      <div class="product-categories" id="product-catalog">
+
+        <article class="product-category" id="category-laptops" data-category="laptops" aria-labelledby="laptops-heading">
+          <h2 id="laptops-heading" class="category-title">Laptops</h2>
+          <div class="product-grid" id="laptops-grid">
+            <p class="placeholder-text">Turn on JavaScript to see our laptops.</p>
+          </div>
+        </article>
+
+        <article class="product-category" id="category-headphones" data-category="headphones" aria-labelledby="headphones-heading">
+          <h2 id="headphones-heading" class="category-title">Headphones</h2>
+          <div class="product-grid" id="headphones-grid">
+            <p class="placeholder-text">Turn on JavaScript to see our headphones.</p>
+          </div>
+        </article>
+
+        <article class="product-category" id="category-smartwatches" data-category="smartwatches" aria-labelledby="smartwatches-heading">
+          <h2 id="smartwatches-heading" class="category-title">Smartwatches</h2>
+          <div class="product-grid" id="smartwatches-grid">
+            <p class="placeholder-text">Turn on JavaScript to see our smartwatches.</p>
+          </div>
+        </article>
+
+        <article class="product-category" id="category-accessories" data-category="accessories" aria-labelledby="accessories-heading">
+          <h2 id="accessories-heading" class="category-title">Accessories</h2>
+          <div class="product-grid" id="accessories-grid">
+            <p class="placeholder-text">Turn on JavaScript to see our accessories.</p>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------
+         ADD PRODUCT SECTION
+         techgear-main.js validates the form, push()es the new product
+         into the "products" array, and re-renders the catalog.
+         "novalidate" turns off the browser's pop-ups so our own
+         accessible error messages show instead.
+         ---------------------------------------------------------- -->
+    <section class="add-product" id="add-product" aria-labelledby="add-product-heading">
+      <h2 id="add-product-heading" class="section-title">Add a Product</h2>
+      <p class="section-intro">
+        Add a new item to the catalog above. All fields are required.
+        Products you add or delete are saved in this browser.
+      </p>
+
+      <form class="form-card product-form" id="add-product-form" novalidate>
+
+        <div class="form-field">
+          <label for="new-product-name">Product name <span class="required-mark" aria-hidden="true">*</span></label>
+          <input type="text" id="new-product-name" name="name" maxlength="60"
+                 placeholder="e.g. TechGear UltraBook 15"
+                 required aria-describedby="new-product-name-error">
+          <p class="field-error" id="new-product-name-error"></p>
+        </div>
+
+        <!-- Option values match the category ids used in techgear-main.js -->
+        <div class="form-field">
+          <label for="new-product-category">Category <span class="required-mark" aria-hidden="true">*</span></label>
+          <select id="new-product-category" name="category" required aria-describedby="new-product-category-error">
+            <option value="">Choose a category</option>
+            <option value="laptops">Laptops</option>
+            <option value="headphones">Headphones</option>
+            <option value="smartwatches">Smartwatches</option>
+            <option value="accessories">Accessories</option>
+          </select>
+          <p class="field-error" id="new-product-category-error"></p>
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="new-product-description">Short description <span class="required-mark" aria-hidden="true">*</span></label>
+          <textarea id="new-product-description" name="description" rows="3" maxlength="200"
+                    placeholder="One or two sentences about the product"
+                    required aria-describedby="new-product-description-error"></textarea>
+          <p class="field-error" id="new-product-description-error"></p>
+        </div>
+
+        <div class="form-field">
+          <label for="new-product-price">Sample price (USD) <span class="required-mark" aria-hidden="true">*</span></label>
+          <input type="number" id="new-product-price" name="price" min="0.01" step="0.01"
+                 inputmode="decimal" placeholder="e.g. 199.99"
+                 required aria-describedby="new-product-price-error">
+          <p class="field-error" id="new-product-price-error"></p>
+        </div>
+
+        <!-- Three specifications, each with a name and a value -->
+        <fieldset class="form-fieldset">
+          <legend>Specifications <span class="required-mark" aria-hidden="true">*</span></legend>
+          <p class="form-hint">Add three specs, each with a name (like "Battery") and a value (like "Up to 18 hours").</p>
+
+          <div class="spec-input-row">
+            <div class="form-field">
+              <label for="new-spec-1-label">Spec 1 name</label>
+              <input type="text" id="new-spec-1-label" maxlength="30" placeholder="e.g. Display"
+                     required aria-describedby="new-spec-1-error">
+            </div>
+            <div class="form-field">
+              <label for="new-spec-1-value">Spec 1 value</label>
+              <input type="text" id="new-spec-1-value" maxlength="60" placeholder="e.g. 15&quot; OLED, 120Hz"
+                     required aria-describedby="new-spec-1-error">
+            </div>
+            <p class="field-error" id="new-spec-1-error"></p>
+          </div>
+
+          <div class="spec-input-row">
+            <div class="form-field">
+              <label for="new-spec-2-label">Spec 2 name</label>
+              <input type="text" id="new-spec-2-label" maxlength="30" placeholder="e.g. Processor"
+                     required aria-describedby="new-spec-2-error">
+            </div>
+            <div class="form-field">
+              <label for="new-spec-2-value">Spec 2 value</label>
+              <input type="text" id="new-spec-2-value" maxlength="60" placeholder="e.g. 10-core CPU, 32GB RAM"
+                     required aria-describedby="new-spec-2-error">
+            </div>
+            <p class="field-error" id="new-spec-2-error"></p>
+          </div>
+
+          <div class="spec-input-row">
+            <div class="form-field">
+              <label for="new-spec-3-label">Spec 3 name</label>
+              <input type="text" id="new-spec-3-label" maxlength="30" placeholder="e.g. Battery"
+                     required aria-describedby="new-spec-3-error">
+            </div>
+            <div class="form-field">
+              <label for="new-spec-3-value">Spec 3 value</label>
+              <input type="text" id="new-spec-3-value" maxlength="60" placeholder="e.g. Up to 20 hours"
+                     required aria-describedby="new-spec-3-error">
+            </div>
+            <p class="field-error" id="new-spec-3-error"></p>
+          </div>
+        </fieldset>
+
+        <button type="submit" class="btn btn-primary form-submit">Add Product</button>
+
+        <!-- Success or error summary (announced to screen readers) -->
+        <p class="form-message" id="add-product-message" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       SITE FOOTER
+       ============================================================ -->
+  <footer class="site-footer" id="site-footer">
+    <p class="copyright">
+      &copy; <span id="current-year">2026</span> TechGear. All rights reserved.
+    </p>
+
+    <nav class="social-links" aria-label="Social media">
+      <ul>
+        <li><a href="#" class="social-link" aria-label="TechGear on Facebook">Facebook</a></li>
+        <li><a href="#" class="social-link" aria-label="TechGear on Instagram">Instagram</a></li>
+        <li><a href="#" class="social-link" aria-label="TechGear on X (formerly Twitter)">X</a></li>
+        <li><a href="#" class="social-link" aria-label="TechGear on YouTube">YouTube</a></li>
+      </ul>
+    </nav>
+
+    <a href="#site-header" class="back-to-top" aria-label="Back to top of page">Back to top</a>
+  </footer>
+
+</body>
+</html>

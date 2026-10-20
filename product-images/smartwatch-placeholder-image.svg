@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- TechGear placeholder: smartwatch (used when a smartwatch has no photo) -->
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="70%">
+      <stop offset="0" stop-color="#16264a"/>
+      <stop offset="1" stop-color="#0b1222"/>
+    </radialGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <ellipse cx="400" cy="500" rx="150" ry="14" fill="#3b82f6" opacity="0.18"/>
+  <g fill="none" stroke="#60a5fa" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+    <path d="M352 205 L362 110 H438 L448 205" stroke-width="8"/>
+    <path d="M352 395 L362 490 H438 L448 395" stroke-width="8"/>
+    <rect x="315" y="195" width="170" height="210" rx="46" stroke-width="9"/>
+    <path d="M487 270 H500 V320 H487" stroke-width="7"/>
+    <circle cx="400" cy="300" r="52" stroke-width="5" opacity="0.6"/>
+    <path d="M400 300 V270 M400 300 L422 312" stroke-width="5" opacity="0.8"/>
+  </g>
+</svg>
