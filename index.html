@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ============================================================
+       REDIRECT PAGE: index.html → techgear-home.html
+       Web hosts such as GitHub Pages open "index.html" automatically
+       for the site's main address, and old links or bookmarks may
+       still use the original page names. This tiny page forwards
+       visitors to the real page, so they never see an error.
+       ============================================================ -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechGear | Home</title>
+
+  <!-- Tells search engines which address is the real page -->
+  <link rel="canonical" href="techgear-home.html">
+
+  <!-- 1. Instant redirect with JavaScript. location.replace() also
+          keeps the redirect page out of the Back-button history, and
+          we carry over any "?..." or "#section" part of the address. -->
+  <script>
+    window.location.replace('techgear-home.html' + window.location.search + window.location.hash);
+  </script>
+
+  <!-- 2. Backup redirect that works even with JavaScript turned off -->
+  <meta http-equiv="refresh" content="0; url=techgear-home.html">
+
+  <!-- Dark background, so there's no white flash while redirecting -->
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem 1rem;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      color: #f5f7fb;
+      background-color: #070b14;
+    }
+    a { color: #60a5fa; }
+  </style>
+</head>
+<body>
+  <!-- 3. A plain link, in case both redirects are blocked -->
+  <p>Taking you to the TechGear Home page… If nothing happens, <a href="techgear-home.html">open the Home page</a>.</p>
+</body>
+</html>
