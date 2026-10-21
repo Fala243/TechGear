@@ -171,8 +171,8 @@ const SAMPLE_PRODUCTS = [
     category: 'laptops',
     description: 'A featherlight laptop with a vivid display and all-day battery for work on the go.',
     price: 1299,
-    image: 'product-images/techgear-ultrabook-14-laptop.jpg',
-    imageAlt: 'TechGear UltraBook 14 laptop, open, with a slim silver body and a glowing display',
+    image: 'product-images/techgear-ultrabook-14-laptop.webp',
+    imageAlt: 'TechGear UltraBook 14 laptop, half open, with a slim silver body and a bright display, on a dark background',
     specs: [
       { label: 'Display', value: '14" 2.8K OLED, 120Hz' },
       { label: 'Processor', value: '8-core CPU, 16GB RAM' },
@@ -185,8 +185,8 @@ const SAMPLE_PRODUCTS = [
     category: 'laptops',
     description: 'A powerful 16-inch creator and gaming laptop with a fast, color-accurate screen.',
     price: 1899,
-    image: 'product-images/techgear-forge-16-laptop.jpg',
-    imageAlt: 'TechGear Forge 16 laptop with a dark chassis and a blue-backlit keyboard',
+    image: 'product-images/techgear-forge-16-laptop.webp',
+    imageAlt: 'TechGear Forge 16 gaming laptop with a black chassis and a colorful backlit keyboard',
     specs: [
       { label: 'Display', value: '16" QHD+, 240Hz' },
       { label: 'Graphics', value: 'RTX-class GPU, 8GB' },
@@ -199,8 +199,8 @@ const SAMPLE_PRODUCTS = [
     category: 'headphones',
     description: 'Over-ear wireless headphones with adaptive noise cancelling and rich, balanced sound.',
     price: 279,
-    image: 'product-images/aurasound-pro-anc-headphones.jpg',
-    imageAlt: 'AuraSound Pro ANC over-ear wireless headphones in matte black',
+    image: 'product-images/aurasound-pro-anc-headphones.webp',
+    imageAlt: 'AuraSound Pro ANC over-ear wireless headphones in matte black, lying on a dark surface',
     specs: [
       { label: 'Noise cancelling', value: 'Adaptive ANC' },
       { label: 'Battery', value: 'Up to 40 hours' },
@@ -213,8 +213,8 @@ const SAMPLE_PRODUCTS = [
     category: 'headphones',
     description: 'Tiny true-wireless earbuds with a pocket-sized charging case and clear calls.',
     price: 129,
-    image: 'product-images/aurasound-buds-air-earbuds.jpg',
-    imageAlt: 'AuraSound Buds Air wireless earbuds beside their open charging case',
+    image: 'product-images/aurasound-buds-air-earbuds.webp',
+    imageAlt: 'AuraSound Buds Air black wireless earbuds beside their open charging case',
     specs: [
       { label: 'Battery', value: '8 h (30 h with case)' },
       { label: 'Water resistance', value: 'IPX5' },
@@ -227,8 +227,8 @@ const SAMPLE_PRODUCTS = [
     category: 'smartwatches',
     description: 'A sleek fitness smartwatch with health tracking, GPS, and a bright always-on screen.',
     price: 249,
-    image: 'product-images/pulsefit-watch-2-smartwatch.jpg',
-    imageAlt: 'PulseFit Watch 2 smartwatch showing activity rings on its screen',
+    image: 'product-images/pulsefit-watch-2-smartwatch.webp',
+    imageAlt: 'PulseFit Watch 2 smartwatch with a white strap, showing the time on its bright screen',
     specs: [
       { label: 'Display', value: '1.4" AMOLED, always-on' },
       { label: 'Battery', value: 'Up to 7 days' },
@@ -241,8 +241,8 @@ const SAMPLE_PRODUCTS = [
     category: 'smartwatches',
     description: 'A rugged outdoor watch with offline maps, dual-band GPS, and a titanium case.',
     price: 399,
-    image: 'product-images/pulsefit-trail-pro-smartwatch.jpg',
-    imageAlt: 'PulseFit Trail Pro rugged outdoor watch with a titanium case and a map on screen',
+    image: 'product-images/pulsefit-trail-pro-smartwatch.webp',
+    imageAlt: 'PulseFit Trail Pro rugged outdoor watch with a black case and a textured sport strap',
     specs: [
       { label: 'GPS', value: 'Dual-band, offline maps' },
       { label: 'Battery', value: 'Up to 14 days' },
@@ -255,8 +255,8 @@ const SAMPLE_PRODUCTS = [
     category: 'accessories',
     description: 'A compact fast charger that powers your laptop, phone, and watch from one plug.',
     price: 49,
-    image: 'product-images/voltcharge-65w-charger.jpg',
-    imageAlt: 'VoltCharge 65W compact GaN charger with two USB-C ports and one USB-A port',
+    image: 'product-images/voltcharge-65w-charger.webp',
+    imageAlt: 'VoltCharge 65W compact GaN wall charger in graphite, beside its coiled USB-C cable',
     specs: [
       { label: 'Total output', value: '65W fast charging' },
       { label: 'Ports', value: '2× USB-C, 1× USB-A' },
@@ -269,8 +269,8 @@ const SAMPLE_PRODUCTS = [
     category: 'accessories',
     description: 'One cable connects your laptop to a monitor, network, memory cards, and more.',
     price: 79,
-    image: 'product-images/docklink-8-in-1-usb-c-hub.jpg',
-    imageAlt: 'DockLink 8-in-1 USB-C hub showing its HDMI, USB, Ethernet, and card reader ports',
+    image: 'product-images/docklink-8-in-1-usb-c-hub.webp',
+    imageAlt: 'DockLink 8-in-1 USB-C hub in space gray, showing its SD card slots and USB port',
     specs: [
       { label: 'Video', value: 'HDMI 4K @ 60Hz' },
       { label: 'Ports', value: '3× USB-A, 1× USB-C PD' },
@@ -293,26 +293,25 @@ const PLACEHOLDER_IMAGES = {
  * Work out which image a product card should show. Returns
  * { src, alt, isPlaceholder }.
  *
- * 1. The product's own image, if it has one.
- * 2. Older saved data: products saved BEFORE images were added have
- *    no "image" property. If one matches a sample product (same id
- *    AND same name), we borrow the sample's photo. The saved data
- *    itself is never changed. Checking the name too means a
- *    different product that happens to reuse an id never gets the
- *    wrong photo.
+ * 1. A sample product (same id AND same name) always uses the
+ *    sample's current photo, even if older saved data holds no image
+ *    or an outdated image path. The saved data itself is never
+ *    changed. Checking the name too means a different product that
+ *    happens to reuse an id never gets the wrong photo.
+ * 2. Otherwise, the product's own image, if it has one.
  * 3. Otherwise, the placeholder for its category. Its alt text is
  *    empty ("decorative"), because the product name is right below.
  */
 function getProductImage(product) {
-  if (product.image) {
-    return { src: product.image, alt: product.imageAlt || product.name, isPlaceholder: false };
-  }
-
   const matchingSample = SAMPLE_PRODUCTS.find(function (sample) {
     return sample.id === product.id && sample.name === product.name;
   });
   if (matchingSample && matchingSample.image) {
     return { src: matchingSample.image, alt: matchingSample.imageAlt, isPlaceholder: false };
+  }
+
+  if (product.image) {
+    return { src: product.image, alt: product.imageAlt || product.name, isPlaceholder: false };
   }
 
   return { src: PLACEHOLDER_IMAGES[product.category], alt: '', isPlaceholder: true };
